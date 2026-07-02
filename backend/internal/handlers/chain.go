@@ -98,6 +98,23 @@ func UpdateChain(c *gin.Context) {
 	})
 }
 
+// TestChain pings each hop and returns the refreshed chain
+func TestChain(c *gin.Context) {
+	chain, err := database.GetChainStore().TestChain(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    chain,
+	})
+}
+
 // DeleteChain removes a chain
 func DeleteChain(c *gin.Context) {
 	id := c.Param("id")

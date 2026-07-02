@@ -31,6 +31,12 @@ export const chainsApi = {
     return response.data.data;
   },
 
+  // Test chain — pings each hop, returns refreshed latencies (admin)
+  test: async (id: string): Promise<RelayChain> => {
+    const response = await apiClient.post(`/api/v1/admin/chains/${id}/test`);
+    return response.data.data;
+  },
+
   // Delete chain (admin, requires auth token)
   delete: async (id: string): Promise<void> => {
     await apiClient.delete(`/api/v1/admin/chains/${id}`);

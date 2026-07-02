@@ -59,6 +59,7 @@ func SetupRouter() *gin.Engine {
 			admin.POST("/chains", handlers.CreateChain)
 			admin.PUT("/chains/:id", handlers.UpdateChain)
 			admin.DELETE("/chains/:id", handlers.DeleteChain)
+			admin.POST("/chains/:id/test", handlers.TestChain)
 		}
 	}
 

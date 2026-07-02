@@ -236,6 +236,30 @@ func (s *ChainStore) UpdateChain(id string, req *models.UpdateChainRequest) (*mo
 	return chain, nil
 }
 
+// TestChain simulates pinging each hop and refreshes hop latencies.
+// Real ICMP probing arrives with the agent; until then this jitters the
+// stored values so the UI flow can be exercised end to end.
+func (s *ChainStore) TestChain(id string) (*models.RelayChain, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	chain, exists := s.chains[id]
+	if !exists {
+		return nil, errors.New("chain not found")
+	}
+
+	total := 0
+	for i := range chain.Hops {
+		base := 25 + i*15
+		jitter := int(time.Now().UnixNano()/1e6) % 20
+		chain.Hops[i].Latency = base + jitter
+		chain.Hops[i].PacketLoss = float64(jitter) / 100
+		total += chain.Hops[i].Latency
+	}
+	chain.TotalLatency = total
+	return chain, nil
+}
+
 // DeleteChain removes a chain
 func (s *ChainStore) DeleteChain(id string) error {
 	s.mu.Lock()
