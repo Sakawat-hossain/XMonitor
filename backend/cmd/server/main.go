@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/sakaw/xmonitor/backend/internal/api"
 	"github.com/sakaw/xmonitor/backend/internal/database"
+	"github.com/sakaw/xmonitor/backend/internal/monitor"
 )
 
 func main() {
@@ -23,6 +25,18 @@ func main() {
 
 	database.InitUserStore()
 	fmt.Println("✓ User store initialized (default admin: admin/admin123)")
+
+	database.InitServiceStore()
+	database.InitAlertStore()
+	database.InitCronStore()
+	fmt.Println("✓ Service, alert & cron stores initialized")
+
+	// Background engines
+	ctx := context.Background()
+	monitor.StartChecker(ctx)
+	monitor.StartEvaluator(ctx)
+	monitor.StartCronRunner(ctx)
+	fmt.Println("✓ Monitoring engines started")
 
 	// Setup router
 	router := api.SetupRouter()

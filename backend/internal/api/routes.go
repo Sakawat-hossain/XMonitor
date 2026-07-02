@@ -31,6 +31,8 @@ func SetupRouter() *gin.Engine {
 		v1.GET("/servers/:id", handlers.GetServer)
 		v1.GET("/chains", handlers.GetChains)
 		v1.GET("/chains/:id", handlers.GetChain)
+		v1.GET("/services", handlers.GetServices)
+		v1.GET("/services/:id", handlers.GetService)
 
 		// Auth endpoints
 		auth := v1.Group("/auth")
@@ -60,6 +62,40 @@ func SetupRouter() *gin.Engine {
 			admin.PUT("/chains/:id", handlers.UpdateChain)
 			admin.DELETE("/chains/:id", handlers.DeleteChain)
 			admin.POST("/chains/:id/test", handlers.TestChain)
+
+			// Service monitors
+			admin.POST("/services", handlers.CreateService)
+			admin.PUT("/services/:id", handlers.UpdateService)
+			admin.DELETE("/services/:id", handlers.DeleteService)
+
+			// Alert rules & events
+			admin.GET("/alerts/rules", handlers.GetAlertRules)
+			admin.POST("/alerts/rules", handlers.CreateAlertRule)
+			admin.PUT("/alerts/rules/:id", handlers.UpdateAlertRule)
+			admin.DELETE("/alerts/rules/:id", handlers.DeleteAlertRule)
+			admin.GET("/alerts/events", handlers.GetAlertEvents)
+
+			// Notification channels
+			admin.GET("/channels", handlers.GetChannels)
+			admin.POST("/channels", handlers.CreateChannel)
+			admin.DELETE("/channels/:id", handlers.DeleteChannel)
+			admin.POST("/channels/:id/test", handlers.TestChannel)
+
+			// Scheduled tasks
+			admin.GET("/cron", handlers.GetCronTasks)
+			admin.POST("/cron", handlers.CreateCronTask)
+			admin.PUT("/cron/:id", handlers.UpdateCronTask)
+			admin.DELETE("/cron/:id", handlers.DeleteCronTask)
+			admin.POST("/cron/:id/trigger", handlers.TriggerCronTask)
+			admin.GET("/cron/executions", handlers.GetCronExecutions)
+
+			// WebSSH & remote file manager
+			admin.GET("/servers/:id/ssh", handlers.WebSSH)
+			admin.GET("/servers/:id/files", handlers.ListFiles)
+			admin.GET("/servers/:id/files/download", handlers.DownloadFile)
+			admin.POST("/servers/:id/files/upload", handlers.UploadFile)
+			admin.DELETE("/servers/:id/files", handlers.DeleteFile)
+			admin.POST("/servers/:id/files/rename", handlers.RenameFile)
 		}
 	}
 

@@ -21,20 +21,31 @@ type Server struct {
 	Uptime      int64     `json:"uptime"`         // seconds
 	LastSeen    time.Time `json:"last_seen"`
 	CreatedAt   time.Time `json:"created_at"`
+
+	// SSH access for WebSSH / file manager. Password is write-only.
+	SSHPort     int    `json:"ssh_port,omitempty"`
+	SSHUser     string `json:"ssh_user,omitempty"`
+	SSHPassword string `json:"-"`
 }
 
 // CreateServerRequest is the payload to add a new server
 type CreateServerRequest struct {
-	Name    string `json:"name" binding:"required"`
-	IP      string `json:"ip" binding:"required"`
-	Country string `json:"country" binding:"required"`
-	Role    string `json:"role" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+	IP          string `json:"ip" binding:"required"`
+	Country     string `json:"country" binding:"required"`
+	Role        string `json:"role" binding:"required"`
+	SSHPort     int    `json:"ssh_port"`
+	SSHUser     string `json:"ssh_user"`
+	SSHPassword string `json:"ssh_password"`
 }
 
 // UpdateServerRequest is the payload to edit a server; empty fields are left unchanged
 type UpdateServerRequest struct {
-	Name    string `json:"name"`
-	IP      string `json:"ip"`
-	Country string `json:"country"`
-	Role    string `json:"role"`
+	Name        string `json:"name"`
+	IP          string `json:"ip"`
+	Country     string `json:"country"`
+	Role        string `json:"role"`
+	SSHPort     int    `json:"ssh_port"`
+	SSHUser     string `json:"ssh_user"`
+	SSHPassword string `json:"ssh_password"`
 }

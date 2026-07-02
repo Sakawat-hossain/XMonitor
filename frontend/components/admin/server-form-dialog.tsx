@@ -39,6 +39,9 @@ const schema = z.object({
   ),
   country: z.string().min(2, 'Country is required'),
   role: z.enum(['entry', 'relay', 'main', 'standalone']),
+  ssh_port: z.number().optional(),
+  ssh_user: z.string().optional(),
+  ssh_password: z.string().optional(),
 });
 
 type Form = z.infer<typeof schema>;
@@ -71,8 +74,11 @@ export function ServerFormDialog({
     if (open) {
       reset(
         server
-          ? { name: server.name, ip: server.ip, country: server.country, role: server.role }
-          : { name: '', ip: '', country: 'US', role: 'standalone' }
+          ? {
+              name: server.name, ip: server.ip, country: server.country, role: server.role,
+              ssh_port: server.ssh_port ?? 22, ssh_user: server.ssh_user ?? '', ssh_password: '',
+            }
+          : { name: '', ip: '', country: 'US', role: 'standalone', ssh_port: 22, ssh_user: '', ssh_password: '' }
       );
     }
   }, [open, server, reset]);
@@ -157,6 +163,30 @@ export function ServerFormDialog({
               />
             </div>
           </div>
+          <div className="border-t pt-3 space-y-3">
+            <p className="text-sm font-medium">
+              SSH access <span className="text-muted-foreground font-normal">(optional — enables WebSSH & file manager)</span>
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="ssh_port">Port</Label>
+                <Input id="ssh_port" type="number" placeholder="22" {...register('ssh_port', { valueAsNumber: true })} />
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="ssh_user">Username</Label>
+                <Input id="ssh_user" placeholder="root" {...register('ssh_user')} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ssh_password">Password</Label>
+              <Input
+                id="ssh_password" type="password"
+                placeholder={isEdit ? '(unchanged if left blank)' : ''}
+                {...register('ssh_password')}
+              />
+            </div>
+          </div>
+
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {isEdit ? 'Save changes' : 'Add server'}

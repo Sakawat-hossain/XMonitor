@@ -106,6 +106,9 @@ func (s *MemoryStore) CreateServer(req *models.CreateServerRequest) *models.Serv
 		CountryFlag: getCountryFlag(req.Country),
 		Role:        req.Role,
 		Status:      "offline",
+		SSHPort:     req.SSHPort,
+		SSHUser:     req.SSHUser,
+		SSHPassword: req.SSHPassword,
 		CreatedAt:   time.Now(),
 		LastSeen:    time.Now(),
 	}
@@ -160,6 +163,15 @@ func (s *MemoryStore) UpdateServer(id string, req *models.UpdateServerRequest) (
 	}
 	if req.Role != "" {
 		server.Role = req.Role
+	}
+	if req.SSHPort != 0 {
+		server.SSHPort = req.SSHPort
+	}
+	if req.SSHUser != "" {
+		server.SSHUser = req.SSHUser
+	}
+	if req.SSHPassword != "" {
+		server.SSHPassword = req.SSHPassword
 	}
 	return server, nil
 }

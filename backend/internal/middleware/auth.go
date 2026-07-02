@@ -70,8 +70,14 @@ func parseToken(tokenString string) (string, string, error) {
 // AuthRequired validates the Bearer token and stores user info in context
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		header := c.GetHeader("Authorization")
-		if !strings.HasPrefix(header, "Bearer ") {
+		var raw string
+		if header := c.GetHeader("Authorization"); strings.HasPrefix(header, "Bearer ") {
+			raw = strings.TrimPrefix(header, "Bearer ")
+		} else if q := c.Query("token"); q != "" {
+			// WebSocket clients can't set headers; they pass ?token= instead
+			raw = q
+		}
+		if raw == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"success": false,
 				"error":   "authorization required",
@@ -79,7 +85,7 @@ func AuthRequired() gin.HandlerFunc {
 			return
 		}
 
-		userID, role, err := parseToken(strings.TrimPrefix(header, "Bearer "))
+		userID, role, err := parseToken(raw)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"success": false,

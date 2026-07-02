@@ -38,7 +38,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { formatUptime } from '@/lib/utils/format';
-import { Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import {
+  FolderOpen, Pencil, Plus, RefreshCw, Search, TerminalSquare, Trash2,
+} from 'lucide-react';
 
 const PAGE_SIZES = [10, 25, 50, 100];
 
@@ -270,6 +273,16 @@ function ServersPageInner() {
                   <TableCell className="text-sm">{formatUptime(s.uptime)}</TableCell>
                   <TableCell>
                     <div className="flex gap-1 justify-end">
+                      <Button asChild variant="ghost" size="icon" className="h-8 w-8" aria-label={`SSH to ${s.name}`}>
+                        <Link href={`/admin/servers/${s.id}/ssh`} title="WebSSH terminal">
+                          <TerminalSquare className="w-4 h-4" />
+                        </Link>
+                      </Button>
+                      <Button asChild variant="ghost" size="icon" className="h-8 w-8" aria-label={`Files on ${s.name}`}>
+                        <Link href={`/admin/servers/${s.id}/files`} title="File manager">
+                          <FolderOpen className="w-4 h-4" />
+                        </Link>
+                      </Button>
                       <Button
                         variant="ghost" size="icon" className="h-8 w-8"
                         aria-label={`Edit ${s.name}`}

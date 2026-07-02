@@ -14,6 +14,8 @@ export interface Server {
   uptime: number;
   last_seen: string;
   created_at: string;
+  ssh_port?: number;
+  ssh_user?: string;
 }
 
 export interface ServersResponse {
