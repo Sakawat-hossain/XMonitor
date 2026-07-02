@@ -134,15 +134,13 @@ func (s *ChainStore) GetChainByID(id string) (*models.RelayChain, error) {
 	return chain, nil
 }
 
-// CreateChain adds a new chain
-func (s *ChainStore) CreateChain(req *models.CreateChainRequest) (*models.RelayChain, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
+// buildHops resolves server IDs into ordered chain hops.
+// First hop is the entry (publicly visible), last is the main node.
+func buildHops(serverIDs []string) ([]models.Hop, error) {
 	serverStore := GetStore()
-	hops := make([]models.Hop, 0, len(req.ServerIDs))
+	hops := make([]models.Hop, 0, len(serverIDs))
 
-	for i, srvID := range req.ServerIDs {
+	for i, srvID := range serverIDs {
 		srv, err := serverStore.GetServerByID(srvID)
 		if err != nil {
 			return nil, errors.New("server not found: " + srvID)
@@ -153,7 +151,7 @@ func (s *ChainStore) CreateChain(req *models.CreateChainRequest) (*models.RelayC
 		if i == 0 {
 			role = "entry"
 			isHidden = false
-		} else if i == len(req.ServerIDs)-1 {
+		} else if i == len(serverIDs)-1 {
 			role = "main"
 		}
 
@@ -171,11 +169,27 @@ func (s *ChainStore) CreateChain(req *models.CreateChainRequest) (*models.RelayC
 			PacketLoss:  0.1,
 		})
 	}
+	return hops, nil
+}
 
-	totalLatency := 0
+func totalLatencyOf(hops []models.Hop) int {
+	total := 0
 	for _, h := range hops {
-		totalLatency += h.Latency
+		total += h.Latency
 	}
+	return total
+}
+
+// CreateChain adds a new chain
+func (s *ChainStore) CreateChain(req *models.CreateChainRequest) (*models.RelayChain, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	hops, err := buildHops(req.ServerIDs)
+	if err != nil {
+		return nil, err
+	}
+	totalLatency := totalLatencyOf(hops)
 
 	chain := &models.RelayChain{
 		ID:           uuid.New().String(),
@@ -188,6 +202,37 @@ func (s *ChainStore) CreateChain(req *models.CreateChainRequest) (*models.RelayC
 	}
 
 	s.chains[chain.ID] = chain
+	return chain, nil
+}
+
+// UpdateChain edits a chain; empty request fields are left unchanged.
+// If ServerIDs is provided, the hops are rebuilt in the new order.
+func (s *ChainStore) UpdateChain(id string, req *models.UpdateChainRequest) (*models.RelayChain, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	chain, exists := s.chains[id]
+	if !exists {
+		return nil, errors.New("chain not found")
+	}
+
+	if req.Name != "" {
+		chain.Name = req.Name
+	}
+	if req.Description != "" {
+		chain.Description = req.Description
+	}
+	if req.ServerIDs != nil {
+		if len(req.ServerIDs) < 2 {
+			return nil, errors.New("a chain needs at least 2 servers")
+		}
+		hops, err := buildHops(req.ServerIDs)
+		if err != nil {
+			return nil, err
+		}
+		chain.Hops = hops
+		chain.TotalLatency = totalLatencyOf(hops)
+	}
 	return chain, nil
 }
 

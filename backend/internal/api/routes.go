@@ -26,6 +26,12 @@ func SetupRouter() *gin.Engine {
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
+		// Public — read-only, no auth
+		v1.GET("/servers", handlers.GetServers)
+		v1.GET("/servers/:id", handlers.GetServer)
+		v1.GET("/chains", handlers.GetChains)
+		v1.GET("/chains/:id", handlers.GetChain)
+
 		// Auth endpoints
 		auth := v1.Group("/auth")
 		{
@@ -40,24 +46,20 @@ func SetupRouter() *gin.Engine {
 			}
 		}
 
-		// Server endpoints
-		servers := v1.Group("/servers")
+		// Admin — auth required for all management operations
+		admin := v1.Group("/admin")
+		admin.Use(middleware.AuthRequired(), middleware.AdminOnly())
 		{
-			servers.GET("", handlers.GetServers)
-			servers.GET("/:id", handlers.GetServer)
-			servers.POST("", handlers.CreateServer)
-			servers.DELETE("/:id", handlers.DeleteServer)
-		}
+			// Server CRUD
+			admin.POST("/servers", handlers.CreateServer)
+			admin.PUT("/servers/:id", handlers.UpdateServer)
+			admin.DELETE("/servers/:id", handlers.DeleteServer)
 
-		// Chain endpoints
-		chains := v1.Group("/chains")
-		{
-			chains.GET("", handlers.GetChains)
-			chains.GET("/:id", handlers.GetChain)
-			chains.POST("", handlers.CreateChain)
-			chains.DELETE("/:id", handlers.DeleteChain)
+			// Chain CRUD
+			admin.POST("/chains", handlers.CreateChain)
+			admin.PUT("/chains/:id", handlers.UpdateChain)
+			admin.DELETE("/chains/:id", handlers.DeleteChain)
 		}
-
 	}
 
 	// Root endpoint

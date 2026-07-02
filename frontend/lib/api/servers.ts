@@ -14,8 +14,25 @@ export const serversApi = {
     return response.data.data;
   },
 
-  // Delete server
+  // Create server (admin, requires auth token)
+  create: async (data: {
+    name: string;
+    ip: string;
+    country: string;
+    role: string;
+  }): Promise<Server> => {
+    const response = await apiClient.post('/api/v1/admin/servers', data);
+    return response.data.data;
+  },
+
+  // Update server (admin, requires auth token)
+  update: async (id: string, data: Partial<Server>): Promise<Server> => {
+    const response = await apiClient.put(`/api/v1/admin/servers/${id}`, data);
+    return response.data.data;
+  },
+
+  // Delete server (admin, requires auth token)
   delete: async (id: string): Promise<void> => {
-    await apiClient.delete(`/api/v1/servers/${id}`);
+    await apiClient.delete(`/api/v1/admin/servers/${id}`);
   },
 };

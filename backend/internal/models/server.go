@@ -30,3 +30,11 @@ type CreateServerRequest struct {
 	Country string `json:"country" binding:"required"`
 	Role    string `json:"role" binding:"required"`
 }
+
+// UpdateServerRequest is the payload to edit a server; empty fields are left unchanged
+type UpdateServerRequest struct {
+	Name    string `json:"name"`
+	IP      string `json:"ip"`
+	Country string `json:"country"`
+	Role    string `json:"role"`
+}

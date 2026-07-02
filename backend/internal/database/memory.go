@@ -138,6 +138,32 @@ func (s *MemoryStore) GetServerByID(id string) (*models.Server, error) {
 	return server, nil
 }
 
+// UpdateServer edits a server; empty request fields are left unchanged
+func (s *MemoryStore) UpdateServer(id string, req *models.UpdateServerRequest) (*models.Server, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	server, exists := s.servers[id]
+	if !exists {
+		return nil, errors.New("server not found")
+	}
+
+	if req.Name != "" {
+		server.Name = req.Name
+	}
+	if req.IP != "" {
+		server.IP = req.IP
+	}
+	if req.Country != "" {
+		server.Country = req.Country
+		server.CountryFlag = getCountryFlag(req.Country)
+	}
+	if req.Role != "" {
+		server.Role = req.Role
+	}
+	return server, nil
+}
+
 // DeleteServer removes a server
 func (s *MemoryStore) DeleteServer(id string) error {
 	s.mu.Lock()

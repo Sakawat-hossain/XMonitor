@@ -34,3 +34,12 @@ type CreateChainRequest struct {
 	Description string   `json:"description"`
 	ServerIDs   []string `json:"server_ids" binding:"required,min=2"`
 }
+
+// UpdateChainRequest payload; empty fields are left unchanged.
+// If ServerIDs is provided it must have at least 2 entries and the
+// hops are rebuilt in the given order.
+type UpdateChainRequest struct {
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	ServerIDs   []string `json:"server_ids"`
+}

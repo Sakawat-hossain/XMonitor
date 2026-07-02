@@ -61,6 +61,32 @@ func CreateServer(c *gin.Context) {
 	})
 }
 
+// UpdateServer edits an existing server
+func UpdateServer(c *gin.Context) {
+	var req models.UpdateServerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	server, err := database.GetStore().UpdateServer(c.Param("id"), &req)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    server,
+	})
+}
+
 // DeleteServer removes a server
 func DeleteServer(c *gin.Context) {
 	id := c.Param("id")

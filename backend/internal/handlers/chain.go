@@ -68,6 +68,36 @@ func CreateChain(c *gin.Context) {
 	})
 }
 
+// UpdateChain edits an existing chain
+func UpdateChain(c *gin.Context) {
+	var req models.UpdateChainRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	chain, err := database.GetChainStore().UpdateChain(c.Param("id"), &req)
+	if err != nil {
+		status := http.StatusBadRequest
+		if err.Error() == "chain not found" {
+			status = http.StatusNotFound
+		}
+		c.JSON(status, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    chain,
+	})
+}
+
 // DeleteChain removes a chain
 func DeleteChain(c *gin.Context) {
 	id := c.Param("id")
