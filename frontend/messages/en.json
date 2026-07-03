@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "servers": "Servers",
+    "chains": "Relay Chains",
+    "services": "Services",
+    "map": "Map",
+    "admin": "Admin",
+    "live": "Live",
+    "tagline": "Network monitoring & relay management"
+  },
+  "home": {
+    "totalServers": "Total Servers",
+    "online": "Online",
+    "offline": "Offline",
+    "monitoredServers": "Monitored Servers",
+    "loading": "Loading servers...",
+    "fetchError": "Failed to fetch servers. Is the backend running?",
+    "empty": "No servers found. Add your first server!"
+  }
+}

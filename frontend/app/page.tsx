@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { Server } from '@/types/server';
 import { serversApi } from '@/lib/api/servers';
 import { ServerCard } from '@/components/dashboard/server-card';
-import { Activity, Server as ServerIcon, AlertCircle } from 'lucide-react';
+import { Navbar } from '@/components/layout/navbar';
+import { useTranslations } from 'next-intl';
+import { Server as ServerIcon, AlertCircle } from 'lucide-react';
 
 export default function Dashboard() {
+  const t = useTranslations('home');
   const [servers, setServers] = useState<Server[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
     fetchServers();
@@ -22,9 +25,9 @@ export default function Dashboard() {
     try {
       const data = await serversApi.getAll();
       setServers(data);
-      setError(null);
+      setError(false);
     } catch (err) {
-      setError('Failed to fetch servers. Is the backend running?');
+      setError(true);
       console.error(err);
     } finally {
       setLoading(false);
@@ -36,26 +39,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-              <Activity className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">XMonitor</h1>
-              <p className="text-xs text-muted-foreground">
-                Network monitoring & relay management
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-muted-foreground">Live</span>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Stats Overview */}
@@ -63,7 +47,7 @@ export default function Dashboard() {
           <div className="bg-card border rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Servers</p>
+                <p className="text-sm text-muted-foreground">{t('totalServers')}</p>
                 <p className="text-3xl font-bold mt-1">{servers.length}</p>
               </div>
               <ServerIcon className="w-8 h-8 text-muted-foreground" />
@@ -73,7 +57,7 @@ export default function Dashboard() {
           <div className="bg-card border rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Online</p>
+                <p className="text-sm text-muted-foreground">{t('online')}</p>
                 <p className="text-3xl font-bold mt-1 text-green-500">
                   {onlineCount}
                 </p>
@@ -87,7 +71,7 @@ export default function Dashboard() {
           <div className="bg-card border rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Offline</p>
+                <p className="text-sm text-muted-foreground">{t('offline')}</p>
                 <p className="text-3xl font-bold mt-1 text-red-500">
                   {offlineCount}
                 </p>
@@ -99,24 +83,24 @@ export default function Dashboard() {
 
         {/* Servers Grid */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Monitored Servers</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('monitoredServers')}</h2>
 
           {loading && (
             <div className="text-center py-12 text-muted-foreground">
-              Loading servers...
+              {t('loading')}
             </div>
           )}
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-4 mb-4 flex items-center gap-2">
               <AlertCircle className="w-5 h-5" />
-              <span>{error}</span>
+              <span>{t('fetchError')}</span>
             </div>
           )}
 
           {!loading && !error && servers.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
-              No servers found. Add your first server!
+              {t('empty')}
             </div>
           )}
 

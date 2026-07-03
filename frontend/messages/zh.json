@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "servers": "服务器",
+    "chains": "中转链路",
+    "services": "服务监控",
+    "map": "地图",
+    "admin": "管理后台",
+    "live": "实时",
+    "tagline": "网络监控与中转管理"
+  },
+  "home": {
+    "totalServers": "服务器总数",
+    "online": "在线",
+    "offline": "离线",
+    "monitoredServers": "监控中的服务器",
+    "loading": "正在加载服务器…",
+    "fetchError": "获取服务器失败，后端是否已启动？",
+    "empty": "暂无服务器，请先添加！"
+  }
+}

@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Activity, KeyRound, LogOut, Menu, UserCircle, ExternalLink } from 'lucide-react';
 
 function SidebarHeader() {
@@ -81,6 +82,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             {loading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
