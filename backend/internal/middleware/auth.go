@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/sakaw/xmonitor/backend/internal/database"
 )
 
 const (
@@ -82,6 +83,30 @@ func AuthRequired() gin.HandlerFunc {
 				"success": false,
 				"error":   "authorization required",
 			})
+			return
+		}
+
+		// API tokens (xmt_…) are validated against the token store rather
+		// than parsed as JWTs. Read-scope tokens may only perform GETs.
+		if strings.HasPrefix(raw, "xmt_") {
+			name, scope, err := database.GetSystemStore().ValidateToken(raw)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+					"success": false,
+					"error":   err.Error(),
+				})
+				return
+			}
+			if scope == "read" && c.Request.Method != http.MethodGet {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+					"success": false,
+					"error":   "this API token is read-only",
+				})
+				return
+			}
+			c.Set(ContextUserID, "token:"+name)
+			c.Set(ContextUserRole, "admin")
+			c.Next()
 			return
 		}
 

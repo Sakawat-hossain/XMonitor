@@ -208,3 +208,13 @@ func getCountryFlag(country string) string {
 	}
 	return "🌐"
 }
+// ReplaceAll swaps in a full server list (used by backup restore)
+func (s *MemoryStore) ReplaceAll(servers []*models.Server) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.servers = make(map[string]*models.Server, len(servers))
+	for _, srv := range servers {
+		s.servers[srv.ID] = srv
+	}
+}

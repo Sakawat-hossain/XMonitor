@@ -180,3 +180,17 @@ func (s *ServiceStore) DueServices() []*models.Service {
 	}
 	return due
 }
+
+// ReplaceAll swaps in a full service list (used by backup restore)
+func (s *ServiceStore) ReplaceAll(services []*models.Service) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.services = make(map[string]*models.Service, len(services))
+	for _, svc := range services {
+		if svc.History == nil {
+			svc.History = []models.CheckResult{}
+		}
+		s.services[svc.ID] = svc
+	}
+}

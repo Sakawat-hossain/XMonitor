@@ -207,3 +207,18 @@ func (s *AlertStore) GetEvents() []*models.AlertEvent {
 	}
 	return out
 }
+
+// ReplaceAll swaps in rules and channels (used by backup restore)
+func (s *AlertStore) ReplaceAll(rules []*models.AlertRule, channels []*models.NotificationChannel) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.rules = make(map[string]*models.AlertRule, len(rules))
+	for _, r := range rules {
+		s.rules[r.ID] = r
+	}
+	s.channels = make(map[string]*models.NotificationChannel, len(channels))
+	for _, ch := range channels {
+		s.channels[ch.ID] = ch
+	}
+}

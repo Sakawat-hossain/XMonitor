@@ -271,3 +271,13 @@ func (s *ChainStore) DeleteChain(id string) error {
 	delete(s.chains, id)
 	return nil
 }
+// ReplaceAll swaps in a full chain list (used by backup restore)
+func (s *ChainStore) ReplaceAll(chains []*models.RelayChain) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.chains = make(map[string]*models.RelayChain, len(chains))
+	for _, c := range chains {
+		s.chains[c.ID] = c
+	}
+}

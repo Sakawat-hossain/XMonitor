@@ -134,3 +134,15 @@ func (s *ProbeStore) BlockedCountries(serverID string) []string {
 	}
 	return blocked
 }
+
+// ReplaceAll swaps in a full probe list (used by backup restore)
+func (s *ProbeStore) ReplaceAll(probes []*models.Probe) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.probes = make(map[string]*models.Probe, len(probes))
+	for _, p := range probes {
+		s.probes[p.ID] = p
+	}
+	s.reach = make(map[string]map[string]*models.Reachability)
+}

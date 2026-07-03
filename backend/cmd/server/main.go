@@ -32,7 +32,8 @@ func main() {
 	database.InitCronStore()
 	database.InitMetricsStore()
 	database.InitProbeStore()
-	fmt.Println("✓ Service, alert, cron, metrics & probe stores initialized")
+	database.InitSystemStore()
+	fmt.Println("✓ Service, alert, cron, metrics, probe & system stores initialized")
 
 	// Background engines
 	ctx := context.Background()

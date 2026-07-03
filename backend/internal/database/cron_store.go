@@ -184,3 +184,15 @@ func (s *CronStore) DueTasks() []*models.CronTask {
 	}
 	return due
 }
+
+// ReplaceAll swaps in a full task list (used by backup restore)
+func (s *CronStore) ReplaceAll(tasks []*models.CronTask) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.tasks = make(map[string]*models.CronTask, len(tasks))
+	for _, t := range tasks {
+		t.NextRun = NextRun(t.Schedule)
+		s.tasks[t.ID] = t
+	}
+}

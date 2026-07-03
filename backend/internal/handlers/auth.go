@@ -38,6 +38,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	database.GetSystemStore().Audit(user.Username, "login", "", c.ClientIP())
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    models.LoginResponse{Token: token, User: user},

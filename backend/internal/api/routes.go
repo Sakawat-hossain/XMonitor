@@ -40,6 +40,7 @@ func SetupRouter() *gin.Engine {
 		v1.GET("/servers/:id/metrics", handlers.GetServerMetrics)
 		v1.GET("/servers/:id/reachability", handlers.GetServerReachability)
 		v1.GET("/probes", handlers.GetProbes)
+		v1.GET("/settings", handlers.GetSettings)
 
 		// Auth endpoints
 		auth := v1.Group("/auth")
@@ -57,8 +58,17 @@ func SetupRouter() *gin.Engine {
 
 		// Admin — auth required for all management operations
 		admin := v1.Group("/admin")
-		admin.Use(middleware.AuthRequired(), middleware.AdminOnly())
+		admin.Use(middleware.AuthRequired(), middleware.AdminOnly(), middleware.AuditLog())
 		{
+			// System: audit log, API tokens, settings, backup
+			admin.GET("/audit-log", handlers.GetAuditLog)
+			admin.GET("/tokens", handlers.GetAPITokens)
+			admin.POST("/tokens", handlers.CreateAPIToken)
+			admin.DELETE("/tokens/:id", handlers.RevokeAPIToken)
+			admin.PUT("/settings", handlers.UpdateSettings)
+			admin.GET("/backup", handlers.ExportBackup)
+			admin.POST("/restore", handlers.ImportBackup)
+
 			// Server CRUD
 			admin.POST("/servers", handlers.CreateServer)
 			admin.PUT("/servers/:id", handlers.UpdateServer)
