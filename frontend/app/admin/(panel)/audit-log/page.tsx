@@ -41,7 +41,7 @@ export default function AuditLogPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold">Audit Log</h1>
+        <h1 className="text-2xl font-semibold">Audit Log</h1>
         <p className="text-sm text-muted-foreground">
           Logins and successful admin write operations (last 1000)
         </p>

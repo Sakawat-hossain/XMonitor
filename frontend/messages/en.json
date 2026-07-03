@@ -15,6 +15,7 @@
     "monitoredServers": "Monitored Servers",
     "loading": "Loading servers...",
     "fetchError": "Failed to fetch servers. Is the backend running?",
-    "empty": "No servers found. Add your first server!"
+    "empty": "No servers found. Add your first server!",
+    "subtitle": "Real-time status of all monitored servers"
   }
 }

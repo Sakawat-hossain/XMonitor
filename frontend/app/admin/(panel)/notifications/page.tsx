@@ -122,7 +122,7 @@ export default function NotificationsAdminPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Notification Channels</h1>
+          <h1 className="text-2xl font-semibold">Notification Channels</h1>
           <p className="text-sm text-muted-foreground">
             Where alert notifications get delivered
           </p>

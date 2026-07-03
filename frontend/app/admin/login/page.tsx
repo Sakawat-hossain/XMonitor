@@ -60,9 +60,9 @@ function LoginPageInner() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-      <Card className="w-full max-w-sm border-2">
+      <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-2">
+          <div className="mx-auto w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center mb-2">
             <Activity className="w-7 h-7 text-white" />
           </div>
           <CardTitle className="text-2xl">XMonitor Admin</CardTitle>

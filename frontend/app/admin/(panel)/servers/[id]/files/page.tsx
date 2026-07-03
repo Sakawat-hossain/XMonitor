@@ -83,7 +83,7 @@ export default function FileManagerPage() {
             </Link>
           </Button>
           <FolderOpen className="w-5 h-5" />
-          <h1 className="text-lg font-bold">Files — {serverName || '…'}</h1>
+          <h1 className="text-lg font-semibold">Files — {serverName || '…'}</h1>
         </div>
         <div className="flex gap-2">
           <input

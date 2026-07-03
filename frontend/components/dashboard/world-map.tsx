@@ -28,7 +28,7 @@ export default function WorldMap({ servers }: { servers: Server[] }) {
       zoom={2}
       minZoom={2}
       scrollWheelZoom
-      className="h-[520px] w-full rounded-lg border-2 z-0"
+      className="h-[520px] w-full rounded-lg border z-0"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -39,7 +39,7 @@ export default function WorldMap({ servers }: { servers: Server[] }) {
         if (!coords) return null;
         const online = list.filter((s) => s.status === 'online').length;
         const color =
-          online === list.length ? '#22c55e' : online > 0 ? '#eab308' : '#ef4444';
+          online === list.length ? '#10b981' : online > 0 ? '#f59e0b' : '#ef4444';
         return (
           <CircleMarker
             key={country}

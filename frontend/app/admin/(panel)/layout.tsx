@@ -22,11 +22,11 @@ import { Activity, KeyRound, LogOut, Menu, UserCircle, ExternalLink } from 'luci
 function SidebarHeader() {
   return (
     <div className="flex items-center gap-2 px-4 py-4 border-b">
-      <div className="w-8 h-8 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+      <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center">
         <Activity className="w-5 h-5 text-white" />
       </div>
       <div>
-        <p className="font-bold leading-none">XMonitor</p>
+        <p className="font-semibold leading-none">XMonitor</p>
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
           Admin Panel
         </p>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { tokenStorage } from '@/lib/auth/storage';
 import { serversApi } from '@/lib/api/servers';
 import { Button } from '@/components/ui/button';
+import { StatusDot } from '@/components/shared/status-dot';
 import { ArrowLeft, TerminalSquare } from 'lucide-react';
 import '@xterm/xterm/css/xterm.css';
 
@@ -93,19 +94,13 @@ export default function WebSSHPage() {
             </Link>
           </Button>
           <TerminalSquare className="w-5 h-5" />
-          <h1 className="text-lg font-bold">SSH — {serverName || '…'}</h1>
+          <h1 className="text-lg font-semibold">SSH — {serverName || '…'}</h1>
         </div>
-        <span className={`text-xs ${
-          status === 'connected' ? 'text-green-500'
-            : status === 'connecting' ? 'text-yellow-500'
-            : 'text-red-500'
-        }`}>
-          ● {status}
-        </span>
+        <StatusDot status={status} pulse={status === 'connected'} />
       </div>
       <div
         ref={containerRef}
-        className="flex-1 min-h-[480px] rounded-lg border-2 bg-[#0a0a0a] p-2"
+        className="flex-1 min-h-[480px] rounded-lg border bg-[#0a0a0a] p-2"
       />
       <p className="text-xs text-muted-foreground">
         Requires SSH credentials on the server (set via Edit server). Connection

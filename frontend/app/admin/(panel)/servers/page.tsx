@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { formatUptime } from '@/lib/utils/format';
+import { StatusDot } from '@/components/shared/status-dot';
 import Link from 'next/link';
 import {
   FolderOpen, Pencil, Plus, RefreshCw, Search, TerminalSquare, Trash2,
@@ -134,7 +135,7 @@ function ServersPageInner() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Servers</h1>
+          <h1 className="text-2xl font-semibold">Servers</h1>
           <p className="text-sm text-muted-foreground">
             {servers.length} registered · {filtered.length} shown
           </p>
@@ -259,13 +260,7 @@ function ServersPageInner() {
                   </TableCell>
                   <TableCell><Badge variant="outline">{s.role}</Badge></TableCell>
                   <TableCell>
-                    <span className={
-                      s.status === 'online' ? 'text-green-500'
-                        : s.status === 'warning' ? 'text-yellow-500'
-                        : 'text-red-500'
-                    }>
-                      ● {s.status}
-                    </span>
+                    <StatusDot status={s.status} />
                   </TableCell>
                   <TableCell className="text-right font-mono text-sm">{s.cpu.toFixed(0)}%</TableCell>
                   <TableCell className="text-right font-mono text-sm">{s.memory.toFixed(0)}%</TableCell>

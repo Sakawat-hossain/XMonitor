@@ -149,7 +149,7 @@ export function ChainWizardDialog({
                     if (!s) return null;
                     return (
                       <div key={id} className="flex items-center gap-2 border rounded-md px-2 py-1.5">
-                        <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0">
+                        <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-semibold shrink-0">
                           {i + 1}
                         </span>
                         <CountryFlag country={s.country} className="w-5 h-3.5 rounded-[2px]" />
@@ -209,7 +209,7 @@ export function ChainWizardDialog({
                 return (
                   <div key={id}>
                     <div className="flex items-center gap-2 border rounded-md px-3 py-2">
-                      <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
+                      <span className="text-xs font-semibold text-muted-foreground w-4">{i + 1}</span>
                       <CountryFlag country={s.country} className="w-5 h-3.5 rounded-[2px]" />
                       <span className="text-sm font-medium flex-1">{s.name}</span>
                       <Badge variant="outline" className="text-[10px]">{roleFor(i)}</Badge>

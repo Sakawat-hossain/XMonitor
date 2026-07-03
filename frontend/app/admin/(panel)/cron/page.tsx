@@ -79,7 +79,7 @@ export default function CronAdminPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Scheduled Tasks</h1>
+          <h1 className="text-2xl font-semibold">Scheduled Tasks</h1>
           <p className="text-sm text-muted-foreground">
             Commands dispatched to agents on a cron schedule
           </p>
@@ -89,7 +89,7 @@ export default function CronAdminPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 text-yellow-600 dark:text-yellow-400 text-sm px-4 py-2">
+      <div className="rounded-md border border-amber-500/30 bg-amber-500/5 text-yellow-600 dark:text-yellow-400 text-sm px-4 py-2">
         The agent component isn&apos;t installed on any server yet, so runs are
         recorded as <code className="font-mono">no_agent</code>. Scheduling and
         history work end-to-end.
@@ -139,7 +139,7 @@ export default function CronAdminPage() {
                       {t.enabled ? new Date(t.next_run).toLocaleString() : '—'}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={t.enabled ? 'text-green-500 border-green-500/30' : 'text-muted-foreground'}>
+                      <Badge variant="outline" className={t.enabled ? 'text-emerald-500 border-emerald-500/30' : 'text-muted-foreground'}>
                         {t.enabled ? 'enabled' : 'disabled'}
                       </Badge>
                     </TableCell>
@@ -201,7 +201,7 @@ export default function CronAdminPage() {
                     </div>
                     <div className="text-right shrink-0">
                       <Badge variant="outline" className={
-                        e.status === 'dispatched' ? 'text-green-500' : 'text-yellow-500'
+                        e.status === 'dispatched' ? 'text-emerald-500' : 'text-amber-500'
                       }>
                         {e.status}
                       </Badge>

@@ -103,7 +103,7 @@ export default function AlertsAdminPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Alerts</h1>
+          <h1 className="text-2xl font-semibold">Alerts</h1>
           <p className="text-sm text-muted-foreground">
             Rules are evaluated every 30 seconds against live metrics
           </p>
@@ -150,8 +150,8 @@ export default function AlertsAdminPage() {
                     <TableCell>
                       <Badge variant="outline" className={
                         !r.enabled ? 'text-muted-foreground'
-                          : r.muted ? 'text-yellow-500 border-yellow-500/30'
-                          : 'text-green-500 border-green-500/30'
+                          : r.muted ? 'text-amber-600 dark:text-amber-500 border-amber-500/30'
+                          : 'text-emerald-600 dark:text-emerald-500 border-emerald-500/30'
                       }>
                         {!r.enabled ? 'disabled' : r.muted ? 'muted' : 'active'}
                       </Badge>
@@ -189,7 +189,7 @@ export default function AlertsAdminPage() {
           <div className="border rounded-lg bg-background">
             {events.length === 0 ? (
               <p className="text-center text-muted-foreground py-10 text-sm">
-                No alerts have fired yet. 🎉
+                No alerts have fired yet.
               </p>
             ) : (
               <div className="divide-y">

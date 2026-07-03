@@ -9,6 +9,7 @@ import { chainsApi } from '@/lib/api/chains';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StatusDot } from '@/components/shared/status-dot';
 import {
   Server as ServerIcon,
   Link2,
@@ -40,7 +41,7 @@ function StatCard({
             {loading ? (
               <Skeleton className="h-9 w-12 mt-1" />
             ) : (
-              <p className={`text-3xl font-bold mt-1 ${tone ?? ''}`}>{value}</p>
+              <p className={`text-3xl font-semibold mt-1 ${tone ?? ''}`}>{value}</p>
             )}
           </div>
           <Icon className={`w-8 h-8 ${tone ?? 'text-muted-foreground'}`} />
@@ -72,7 +73,7 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
             Overview of your monitored infrastructure
           </p>
@@ -93,7 +94,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard title="Total Servers" value={servers.length} icon={ServerIcon} loading={loading} />
-        <StatCard title="Online" value={online} icon={CheckCircle2} tone="text-green-500" loading={loading} />
+        <StatCard title="Online" value={online} icon={CheckCircle2} tone="text-emerald-500" loading={loading} />
         <StatCard title="Offline" value={offline} icon={XCircle} tone="text-red-500" loading={loading} />
         <StatCard title="Active Chains" value={chains.length} icon={Link2} loading={loading} />
       </div>
@@ -113,13 +114,7 @@ export default function AdminDashboard() {
                   className="flex items-center justify-between text-sm border rounded-md px-3 py-2"
                 >
                   <span className="font-medium">{s.name}</span>
-                  <span
-                    className={
-                      s.status === 'online' ? 'text-green-500' : 'text-red-500'
-                    }
-                  >
-                    ● {s.status}
-                  </span>
+                  <StatusDot status={s.status} />
                 </div>
               ))
             )}

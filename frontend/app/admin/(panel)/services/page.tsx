@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StatusDot } from '@/components/shared/status-dot';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -51,7 +52,7 @@ function Sparkline({ history }: { history: Service['history'] }) {
         <div
           key={i}
           title={`${r.up ? `${r.response_time_ms}ms` : r.error || 'down'}`}
-          className={`w-1.5 rounded-sm ${r.up ? 'bg-green-500' : 'bg-red-500'}`}
+          className={`w-1.5 rounded-sm ${r.up ? 'bg-emerald-500' : 'bg-red-500'}`}
           style={{ height: r.up ? `${Math.min(100, 20 + r.response_time_ms / 20)}%` : '100%' }}
         />
       ))}
@@ -107,7 +108,7 @@ export default function ServicesAdminPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Service Monitoring</h1>
+          <h1 className="text-2xl font-semibold">Service Monitoring</h1>
           <p className="text-sm text-muted-foreground">
             HTTP, TCP and ping probes — checked automatically on their interval
           </p>
@@ -156,15 +157,9 @@ export default function ServicesAdminPage() {
                   </TableCell>
                   <TableCell><Badge variant="outline">{s.type}</Badge></TableCell>
                   <TableCell>
-                    <span className={
-                      s.status === 'up' ? 'text-green-500'
-                        : s.status === 'down' ? 'text-red-500'
-                        : 'text-muted-foreground'
-                    }>
-                      ● {s.status}
-                    </span>
+                    <StatusDot status={s.status} />
                     {s.status === 'down' && s.last_error && (
-                      <p className="text-xs text-red-400 truncate max-w-48">{s.last_error}</p>
+                      <p className="text-xs text-red-600 dark:text-red-500 truncate max-w-48">{s.last_error}</p>
                     )}
                   </TableCell>
                   <TableCell className="text-right font-mono text-sm">

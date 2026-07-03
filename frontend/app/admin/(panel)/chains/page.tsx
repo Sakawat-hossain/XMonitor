@@ -8,6 +8,7 @@ import { RelayChain } from '@/types/chain';
 import { chainsApi } from '@/lib/api/chains';
 import { ChainWizardDialog } from '@/components/admin/chain-wizard-dialog';
 import { CountryFlag } from '@/components/ui/country-flag';
+import { StatusDot } from '@/components/shared/status-dot';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,17 +62,11 @@ function ChainsPageInner() {
     }
   };
 
-  const statusTone = {
-    healthy: 'bg-green-500/10 text-green-500 border-green-500/20',
-    degraded: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-    down: 'bg-red-500/10 text-red-500 border-red-500/20',
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Relay Chains</h1>
+          <h1 className="text-2xl font-semibold">Relay Chains</h1>
           <p className="text-sm text-muted-foreground">
             Multi-hop routes through your infrastructure
           </p>
@@ -103,9 +98,7 @@ function ChainsPageInner() {
                       </p>
                     )}
                   </div>
-                  <Badge variant="outline" className={statusTone[chain.status]}>
-                    ● {chain.status}
-                  </Badge>
+                  <StatusDot status={chain.status} />
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">

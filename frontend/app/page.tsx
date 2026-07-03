@@ -45,7 +45,7 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         <PageHeader
           title={t('monitoredServers')}
-          description={t('tagline')}
+          description={t('subtitle')}
           actions={
             <StatusDot
               status={wsStatus}

@@ -14,6 +14,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { CountryFlag } from '@/components/ui/country-flag';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusDot } from '@/components/shared/status-dot';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatUptime } from '@/lib/utils/format';
 import { ArrowLeft, Ban, CheckCircle2, ShieldAlert } from 'lucide-react';
@@ -119,27 +120,22 @@ export default function ServerDetailPage() {
               <div className="flex items-center gap-3">
                 <CountryFlag country={server.country} className="w-10 h-7 rounded shadow-sm" />
                 <div>
-                  <h1 className="text-2xl font-bold">{server.name}</h1>
+                  <h1 className="text-2xl font-semibold">{server.name}</h1>
                   <p className="text-sm text-muted-foreground font-mono">{server.ip}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-3 flex-wrap">
+                <StatusDot status={server.status} />
+                <Badge variant="outline">{server.role}</Badge>
                 {blocked.map((c) => (
                   <Badge
                     key={c}
                     variant="outline"
-                    className="bg-red-500/10 text-red-500 border-red-500/30 gap-1"
+                    className="gap-1 text-red-600 dark:text-red-500 border-red-500/30"
                   >
                     <Ban className="w-3 h-3" /> Blocked in {c}
                   </Badge>
                 ))}
-                <Badge variant="outline">{server.role}</Badge>
-                <Badge
-                  variant="outline"
-                  className={server.status === 'online' ? 'text-green-500' : 'text-red-500'}
-                >
-                  ● {server.status}
-                </Badge>
               </div>
             </div>
 
@@ -153,7 +149,7 @@ export default function ServerDetailPage() {
               ].map(([label, value]) => (
                 <div key={label} className="bg-card border rounded-lg p-4">
                   <p className="text-xs text-muted-foreground">{label}</p>
-                  <p className="text-xl font-bold mt-0.5">{value}</p>
+                  <p className="text-xl font-semibold mt-0.5">{value}</p>
                 </div>
               ))}
             </div>
@@ -168,9 +164,9 @@ export default function ServerDetailPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <MetricChart title="CPU" data={metrics} dataKey="cpu" color="#3b82f6" unit="%" />
-                <MetricChart title="Memory" data={metrics} dataKey="memory" color="#a855f7" unit="%" />
-                <MetricChart title="Network In" data={metrics} dataKey="network_in" color="#22c55e" unit="" />
-                <MetricChart title="Network Out" data={metrics} dataKey="network_out" color="#eab308" unit="" />
+                <MetricChart title="Memory" data={metrics} dataKey="memory" color="#8b5cf6" unit="%" />
+                <MetricChart title="Network In" data={metrics} dataKey="network_in" color="#10b981" unit="" />
+                <MetricChart title="Network Out" data={metrics} dataKey="network_out" color="#f59e0b" unit="" />
               </div>
             </div>
 
@@ -191,9 +187,9 @@ export default function ServerDetailPage() {
                   {reach.map((r) => (
                     <div
                       key={r.probe_id}
-                      className={`border-2 rounded-lg p-3 text-center ${
+                      className={`border rounded-lg p-3 text-center ${
                         r.reachable
-                          ? 'border-green-500/30 bg-green-500/5'
+                          ? 'border-emerald-500/30 bg-emerald-500/5'
                           : 'border-red-500/30 bg-red-500/5'
                       }`}
                     >
@@ -202,7 +198,7 @@ export default function ServerDetailPage() {
                       </div>
                       <p className="text-xs font-medium truncate">{r.probe_name}</p>
                       {r.reachable ? (
-                        <p className="text-xs text-green-500 flex items-center justify-center gap-1 mt-1">
+                        <p className="text-xs text-emerald-500 flex items-center justify-center gap-1 mt-1">
                           <CheckCircle2 className="w-3 h-3" /> {r.latency_ms}ms
                         </p>
                       ) : (

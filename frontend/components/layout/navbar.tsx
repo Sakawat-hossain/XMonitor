@@ -26,7 +26,7 @@ export function Navbar() {
             <Activity className="w-5 h-5 text-white" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-lg font-bold leading-none">XMonitor</h1>
+            <h1 className="text-lg font-semibold leading-none">XMonitor</h1>
             <p className="text-[11px] text-muted-foreground">{t('tagline')}</p>
           </div>
         </Link>
@@ -54,7 +54,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-1 shrink-0">
           <div className="hidden sm:flex items-center gap-2 text-sm mr-1">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-muted-foreground">{t('live')}</span>
           </div>
           <LocaleSwitcher />

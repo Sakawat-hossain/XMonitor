@@ -63,7 +63,7 @@ export default function ProbesAdminPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Probe Nodes</h1>
+          <h1 className="text-2xl font-semibold">Probe Nodes</h1>
           <p className="text-sm text-muted-foreground">
             Geo-distributed vantage points that test server reachability —
             powering &quot;Blocked in [country]&quot; detection
@@ -94,7 +94,7 @@ export default function ProbesAdminPage() {
                   <div className="flex items-center gap-1 shrink-0">
                     <Badge
                       variant="outline"
-                      className={p.status === 'online' ? 'text-green-500 border-green-500/30' : 'text-red-500'}
+                      className={p.status === 'online' ? 'text-emerald-500 border-emerald-500/30' : 'text-red-500'}
                     >
                       <Radar className="w-3 h-3 mr-1" /> {p.status}
                     </Badge>

@@ -23,7 +23,7 @@ function HistoryBars({ service }: { service: Service }) {
           <div
             key={i}
             className={`flex-1 max-w-2 rounded-sm ${
-              r.up ? 'bg-green-500' : 'bg-red-500'
+              r.up ? 'bg-emerald-500' : 'bg-red-500'
             } hover:opacity-70 transition-opacity`}
             title={`${new Date(r.timestamp).toLocaleTimeString()} — ${
               r.up ? `up, ${r.response_time_ms}ms` : `down: ${r.error ?? ''}`
@@ -61,14 +61,14 @@ export default function ServiceStatusPage() {
         {/* Overall banner */}
         {!loading && services.length > 0 && (
           <div
-            className={`rounded-lg border-2 p-5 flex items-center gap-3 ${
+            className={`rounded-lg border p-5 flex items-center gap-3 ${
               allUp
-                ? 'border-green-500/30 bg-green-500/5'
+                ? 'border-emerald-500/30 bg-emerald-500/5'
                 : 'border-red-500/30 bg-red-500/5'
             }`}
           >
             {allUp ? (
-              <CheckCircle2 className="w-7 h-7 text-green-500" />
+              <CheckCircle2 className="w-7 h-7 text-emerald-500" />
             ) : (
               <AlertTriangle className="w-7 h-7 text-red-500" />
             )}
@@ -104,7 +104,7 @@ export default function ServiceStatusPage() {
                       <span
                         className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                           s.status === 'up'
-                            ? 'bg-green-500'
+                            ? 'bg-emerald-500'
                             : s.status === 'down'
                             ? 'bg-red-500'
                             : 'bg-muted-foreground'
