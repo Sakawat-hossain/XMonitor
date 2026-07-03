@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Server } from '@/types/server';
 import { CountryFlag } from '@/components/ui/country-flag';
+import { StatusDot } from '@/components/shared/status-dot';
 
 // Rough center coordinates per country code (enough for marker placement)
 const COUNTRY_COORDS: Record<string, [number, number]> = {
@@ -53,12 +54,10 @@ export default function WorldMap({ servers }: { servers: Server[] }) {
                   {country} — {list.length} server{list.length > 1 ? 's' : ''}
                 </p>
                 {list.map((s) => (
-                  <p key={s.id} className="text-xs flex items-center justify-between gap-3">
+                  <span key={s.id} className="text-xs flex items-center justify-between gap-3">
                     <span>{s.name}</span>
-                    <span style={{ color: s.status === 'online' ? '#22c55e' : '#ef4444' }}>
-                      ● {s.status}
-                    </span>
-                  </p>
+                    <StatusDot status={s.status} />
+                  </span>
                 ))}
               </div>
             </Popup>

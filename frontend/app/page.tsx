@@ -1,24 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Server } from '@/types/server';
 import { serversApi } from '@/lib/api/servers';
-import Link from 'next/link';
 import { ServerCard } from '@/components/dashboard/server-card';
 import { Navbar } from '@/components/layout/navbar';
+import { PageHeader } from '@/components/shared/page-header';
+import { EmptyState } from '@/components/shared/empty-state';
+import { MetricCard } from '@/components/shared/metric-card';
+import { StatusDot } from '@/components/shared/status-dot';
 import { useLiveServers } from '@/lib/ws/hooks';
 import { useTranslations } from 'next-intl';
-import { Server as ServerIcon, AlertCircle, Wifi, WifiOff } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ServerOff, AlertCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const t = useTranslations('home');
   const [servers, setServers] = useState<Server[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState(false);
 
-  // Initial snapshot via REST; WebSocket keeps it live afterwards
   useEffect(() => {
-    fetchServers();
+    serversApi
+      .getAll()
+      .then((data) => setServers(data))
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
   }, []);
 
   const wsStatus = useLiveServers((live) => {
@@ -27,105 +35,58 @@ export default function Dashboard() {
     setLoading(false);
   });
 
-  const fetchServers = async () => {
-    try {
-      const data = await serversApi.getAll();
-      setServers(data);
-      setError(false);
-    } catch (err) {
-      setError(true);
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onlineCount = servers.filter((s) => s.status === 'online').length;
-  const offlineCount = servers.filter((s) => s.status === 'offline').length;
+  const online = servers.filter((s) => s.status === 'online').length;
+  const offline = servers.filter((s) => s.status === 'offline').length;
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-card border rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">{t('totalServers')}</p>
-                <p className="text-3xl font-bold mt-1">{servers.length}</p>
-              </div>
-              <ServerIcon className="w-8 h-8 text-muted-foreground" />
-            </div>
-          </div>
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        <PageHeader
+          title={t('monitoredServers')}
+          description={t('tagline')}
+          actions={
+            <StatusDot
+              status={wsStatus}
+              text={wsStatus === 'connected' ? 'Real-time' : wsStatus}
+              pulse={wsStatus === 'connected'}
+            />
+          }
+        />
 
-          <div className="bg-card border rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">{t('online')}</p>
-                <p className="text-3xl font-bold mt-1 text-green-500">
-                  {onlineCount}
-                </p>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card border rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">{t('offline')}</p>
-                <p className="text-3xl font-bold mt-1 text-red-500">
-                  {offlineCount}
-                </p>
-              </div>
-              <AlertCircle className="w-8 h-8 text-red-500/50" />
-            </div>
-          </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard label={t('totalServers')} value={servers.length} />
+          <MetricCard label={t('online')} value={online} />
+          <MetricCard label={t('offline')} value={offline} />
+          <MetricCard label="Relay nodes" value={servers.filter((s) => s.role !== 'standalone').length} />
         </div>
 
-        {/* Servers Grid */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">{t('monitoredServers')}</h2>
-            <span
-              className={`flex items-center gap-1.5 text-xs ${
-                wsStatus === 'connected' ? 'text-green-500' : 'text-yellow-500'
-              }`}
-              title={`WebSocket ${wsStatus}`}
-            >
-              {wsStatus === 'connected' ? (
-                <Wifi className="w-3.5 h-3.5" />
-              ) : (
-                <WifiOff className="w-3.5 h-3.5" />
-              )}
-              {wsStatus === 'connected' ? 'real-time' : wsStatus}
-            </span>
-          </div>
+        {/* Server grid */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold tracking-tight">Servers</h2>
 
-          {loading && (
-            <div className="text-center py-12 text-muted-foreground">
-              {t('loading')}
+          {error ? (
+            <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-500 px-4 py-3 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {t('fetchError')}
             </div>
-          )}
-
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-4 mb-4 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              <span>{t('fetchError')}</span>
+          ) : loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-52 w-full rounded-lg" />
+              ))}
             </div>
-          )}
-
-          {!loading && !error && servers.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              {t('empty')}
+          ) : servers.length === 0 ? (
+            <div className="rounded-lg border bg-card">
+              <EmptyState
+                icon={ServerOff}
+                title={t('empty')}
+                description="Register a server in the admin panel to start monitoring it here."
+              />
             </div>
-          )}
-
-          {!loading && !error && servers.length > 0 && (
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {servers.map((server) => (
                 <Link key={server.id} href={`/servers/${server.id}`} className="block">

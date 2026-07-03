@@ -22,7 +22,7 @@ export function Navbar() {
     <header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2">
         <Link href="/" className="flex items-center gap-3 shrink-0">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
             <Activity className="w-5 h-5 text-white" />
           </div>
           <div className="hidden sm:block">

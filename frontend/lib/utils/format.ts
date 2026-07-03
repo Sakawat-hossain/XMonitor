@@ -15,30 +15,27 @@ export function formatNetwork(mbps: number): string {
   return `${mbps.toFixed(1)} Mbps`;
 }
 
-// Get color based on usage percentage
+// Usage-threshold text color for a metric value (data viz, on-palette)
 export function getUsageColor(value: number): string {
-  if (value >= 80) return 'text-red-500';
-  if (value >= 60) return 'text-yellow-500';
-  return 'text-green-500';
+  if (value >= 80) return 'text-red-600 dark:text-red-500';
+  if (value >= 60) return 'text-amber-600 dark:text-amber-500';
+  return 'text-foreground';
 }
 
-// Get role badge color
-export function getRoleBadgeColor(role: string): string {
+// Usage-threshold bar fill color
+export function getUsageBar(value: number): string {
+  if (value >= 80) return 'bg-red-500';
+  if (value >= 60) return 'bg-amber-500';
+  return 'bg-emerald-500';
+}
+
+// Role → subtle text accent (metadata, not status)
+export function getRoleAccent(role: string): string {
   const colors: Record<string, string> = {
-    entry: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    relay: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-    main: 'bg-green-500/10 text-green-500 border-green-500/20',
-    standalone: 'bg-gray-500/10 text-gray-500 border-gray-500/20',
+    entry: 'text-blue-600 dark:text-blue-500',
+    relay: 'text-violet-600 dark:text-violet-500',
+    main: 'text-emerald-600 dark:text-emerald-500',
+    standalone: 'text-muted-foreground',
   };
   return colors[role] || colors.standalone;
-}
-
-// Get status badge color
-export function getStatusColor(status: string): string {
-  const colors: Record<string, string> = {
-    online: 'bg-green-500/10 text-green-500 border-green-500/20',
-    offline: 'bg-red-500/10 text-red-500 border-red-500/20',
-    warning: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  };
-  return colors[status] || colors.offline;
 }

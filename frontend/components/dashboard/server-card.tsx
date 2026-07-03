@@ -1,121 +1,81 @@
 'use client';
 
 import { Server } from '@/types/server';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { CountryFlag } from '@/components/ui/country-flag';
-import {
-  Cpu,
-  HardDrive,
-  MemoryStick,
-  Wifi,
-  Clock,
-  ArrowDown,
-  ArrowUp,
-} from 'lucide-react';
+import { StatusDot } from '@/components/shared/status-dot';
+import { ArrowDown, ArrowUp, Clock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   formatUptime,
   formatNetwork,
   getUsageColor,
-  getRoleBadgeColor,
-  getStatusColor,
+  getUsageBar,
+  getRoleAccent,
 } from '@/lib/utils/format';
 
-interface ServerCardProps {
-  server: Server;
+function UsageRow({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">{label}</span>
+        <span className={cn('font-medium tabular-nums', getUsageColor(value))}>
+          {value.toFixed(0)}%
+        </span>
+      </div>
+      <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+        <div
+          className={cn('h-full rounded-full transition-all duration-300', getUsageBar(value))}
+          style={{ width: `${Math.min(100, value)}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 
-export function ServerCard({ server }: ServerCardProps) {
+export function ServerCard({ server }: { server: Server }) {
   return (
-    <Card className="hover:shadow-lg transition-shadow border-2">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <CountryFlag country={server.country} className="w-7 h-5 rounded-sm shadow-sm" />
-            <div>
-              <CardTitle className="text-lg">{server.name}</CardTitle>
-              <p className="text-sm text-muted-foreground font-mono">
-                {server.ip}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 items-end">
-            <Badge
-              variant="outline"
-              className={getStatusColor(server.status)}
-            >
-              ● {server.status}
-            </Badge>
-            <Badge
-              variant="outline"
-              className={getRoleBadgeColor(server.role)}
-            >
-              {server.role}
-            </Badge>
+    <div className="rounded-lg border bg-card p-4 transition-colors hover:border-zinc-300 dark:hover:border-zinc-700">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <CountryFlag country={server.country} className="w-6 h-4 rounded-sm shrink-0" />
+          <div className="min-w-0">
+            <p className="font-medium truncate leading-tight">{server.name}</p>
+            <p className="text-xs text-muted-foreground font-mono truncate">{server.ip}</p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {/* CPU */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm">CPU</span>
-          </div>
-          <span className={`text-sm font-medium ${getUsageColor(server.cpu)}`}>
-            {server.cpu.toFixed(1)}%
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <StatusDot status={server.status} />
+          <span className={cn('text-xs capitalize', getRoleAccent(server.role))}>
+            {server.role}
           </span>
         </div>
+      </div>
 
-        {/* Memory */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MemoryStick className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm">Memory</span>
-          </div>
-          <span className={`text-sm font-medium ${getUsageColor(server.memory)}`}>
-            {server.memory.toFixed(1)}%
+      {/* Usage bars */}
+      <div className="mt-4 space-y-3">
+        <UsageRow label="CPU" value={server.cpu} />
+        <UsageRow label="Memory" value={server.memory} />
+        <UsageRow label="Disk" value={server.disk} />
+      </div>
+
+      {/* Footer: network + uptime */}
+      <div className="mt-4 pt-3 border-t flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 font-mono">
+          <span className="flex items-center gap-1">
+            <ArrowDown className="w-3 h-3" />
+            {formatNetwork(server.network_in)}
+          </span>
+          <span className="flex items-center gap-1">
+            <ArrowUp className="w-3 h-3" />
+            {formatNetwork(server.network_out)}
           </span>
         </div>
-
-        {/* Disk */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <HardDrive className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm">Disk</span>
-          </div>
-          <span className={`text-sm font-medium ${getUsageColor(server.disk)}`}>
-            {server.disk.toFixed(1)}%
-          </span>
-        </div>
-
-        {/* Network */}
-        <div className="border-t pt-3 space-y-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Wifi className="w-4 h-4" />
-            <span>Network</span>
-          </div>
-          <div className="flex gap-4 text-sm">
-            <div className="flex items-center gap-1">
-              <ArrowDown className="w-3 h-3 text-blue-500" />
-              <span className="font-mono">{formatNetwork(server.network_in)}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <ArrowUp className="w-3 h-3 text-green-500" />
-              <span className="font-mono">{formatNetwork(server.network_out)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Uptime */}
-        <div className="border-t pt-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="w-4 h-4" />
-            <span>Uptime</span>
-          </div>
-          <span className="text-sm font-mono">{formatUptime(server.uptime)}</span>
-        </div>
-      </CardContent>
-    </Card>
+        <span className="flex items-center gap-1 font-mono">
+          <Clock className="w-3 h-3" />
+          {formatUptime(server.uptime)}
+        </span>
+      </div>
+    </div>
   );
 }
