@@ -88,6 +88,34 @@ export interface CronExecution {
   timestamp: string;
 }
 
+export interface MetricPoint {
+  timestamp: string;
+  cpu: number;
+  memory: number;
+  disk: number;
+  network_in: number;
+  network_out: number;
+}
+
+export interface Probe {
+  id: string;
+  name: string;
+  country: string;
+  region: string;
+  status: 'online' | 'offline';
+  last_seen: string;
+}
+
+export interface Reachability {
+  server_id: string;
+  probe_id: string;
+  probe_country: string;
+  probe_name: string;
+  reachable: boolean;
+  latency_ms: number;
+  timestamp: string;
+}
+
 export interface RemoteFile {
   name: string;
   path: string;

@@ -8,6 +8,7 @@ import (
 	"github.com/sakaw/xmonitor/backend/internal/api"
 	"github.com/sakaw/xmonitor/backend/internal/database"
 	"github.com/sakaw/xmonitor/backend/internal/monitor"
+	"github.com/sakaw/xmonitor/backend/internal/ws"
 )
 
 func main() {
@@ -29,13 +30,17 @@ func main() {
 	database.InitServiceStore()
 	database.InitAlertStore()
 	database.InitCronStore()
-	fmt.Println("✓ Service, alert & cron stores initialized")
+	database.InitMetricsStore()
+	database.InitProbeStore()
+	fmt.Println("✓ Service, alert, cron, metrics & probe stores initialized")
 
 	// Background engines
 	ctx := context.Background()
 	monitor.StartChecker(ctx)
 	monitor.StartEvaluator(ctx)
 	monitor.StartCronRunner(ctx)
+	monitor.StartSimulator(ctx)
+	ws.StartBroadcaster(ctx)
 	fmt.Println("✓ Monitoring engines started")
 
 	// Setup router

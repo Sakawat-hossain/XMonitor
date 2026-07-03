@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sakaw/xmonitor/backend/internal/handlers"
 	"github.com/sakaw/xmonitor/backend/internal/middleware"
+	"github.com/sakaw/xmonitor/backend/internal/ws"
 )
 
 // SetupRouter configures all API routes
@@ -23,6 +24,9 @@ func SetupRouter() *gin.Engine {
 	// Health check
 	router.GET("/health", handlers.HealthCheck)
 
+	// WebSocket live updates (public — mirrors the public GET APIs)
+	router.GET("/ws", ws.Handler)
+
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
@@ -33,6 +37,9 @@ func SetupRouter() *gin.Engine {
 		v1.GET("/chains/:id", handlers.GetChain)
 		v1.GET("/services", handlers.GetServices)
 		v1.GET("/services/:id", handlers.GetService)
+		v1.GET("/servers/:id/metrics", handlers.GetServerMetrics)
+		v1.GET("/servers/:id/reachability", handlers.GetServerReachability)
+		v1.GET("/probes", handlers.GetProbes)
 
 		// Auth endpoints
 		auth := v1.Group("/auth")
@@ -88,6 +95,10 @@ func SetupRouter() *gin.Engine {
 			admin.DELETE("/cron/:id", handlers.DeleteCronTask)
 			admin.POST("/cron/:id/trigger", handlers.TriggerCronTask)
 			admin.GET("/cron/executions", handlers.GetCronExecutions)
+
+			// Probe nodes
+			admin.POST("/probes", handlers.CreateProbe)
+			admin.DELETE("/probes/:id", handlers.DeleteProbe)
 
 			// WebSSH & remote file manager
 			admin.GET("/servers/:id/ssh", handlers.WebSSH)

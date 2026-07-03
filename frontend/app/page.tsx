@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { Server } from '@/types/server';
 import { serversApi } from '@/lib/api/servers';
+import Link from 'next/link';
 import { ServerCard } from '@/components/dashboard/server-card';
 import { Navbar } from '@/components/layout/navbar';
+import { useLiveServers } from '@/lib/ws/hooks';
 import { useTranslations } from 'next-intl';
-import { Server as ServerIcon, AlertCircle } from 'lucide-react';
+import { Server as ServerIcon, AlertCircle, Wifi, WifiOff } from 'lucide-react';
 
 export default function Dashboard() {
   const t = useTranslations('home');
@@ -14,12 +16,16 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<boolean>(false);
 
+  // Initial snapshot via REST; WebSocket keeps it live afterwards
   useEffect(() => {
     fetchServers();
-    // Auto-refresh every 10 seconds
-    const interval = setInterval(fetchServers, 10000);
-    return () => clearInterval(interval);
   }, []);
+
+  const wsStatus = useLiveServers((live) => {
+    setServers(live);
+    setError(false);
+    setLoading(false);
+  });
 
   const fetchServers = async () => {
     try {
@@ -83,7 +89,22 @@ export default function Dashboard() {
 
         {/* Servers Grid */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">{t('monitoredServers')}</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">{t('monitoredServers')}</h2>
+            <span
+              className={`flex items-center gap-1.5 text-xs ${
+                wsStatus === 'connected' ? 'text-green-500' : 'text-yellow-500'
+              }`}
+              title={`WebSocket ${wsStatus}`}
+            >
+              {wsStatus === 'connected' ? (
+                <Wifi className="w-3.5 h-3.5" />
+              ) : (
+                <WifiOff className="w-3.5 h-3.5" />
+              )}
+              {wsStatus === 'connected' ? 'real-time' : wsStatus}
+            </span>
+          </div>
 
           {loading && (
             <div className="text-center py-12 text-muted-foreground">
@@ -107,7 +128,9 @@ export default function Dashboard() {
           {!loading && !error && servers.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {servers.map((server) => (
-                <ServerCard key={server.id} server={server} />
+                <Link key={server.id} href={`/servers/${server.id}`} className="block">
+                  <ServerCard server={server} />
+                </Link>
               ))}
             </div>
           )}

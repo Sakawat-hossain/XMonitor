@@ -7,7 +7,33 @@ import {
   CronTask,
   CronExecution,
   RemoteFile,
+  MetricPoint,
+  Probe,
+  Reachability,
 } from '@/types/monitoring';
+
+export const metricsApi = {
+  history: async (serverId: string): Promise<MetricPoint[]> =>
+    (await apiClient.get(`/api/v1/servers/${serverId}/metrics`)).data.data ?? [],
+  reachability: async (
+    serverId: string
+  ): Promise<{ reachability: Reachability[]; blocked_countries: string[] | null }> =>
+    (await apiClient.get(`/api/v1/servers/${serverId}/reachability`)).data.data,
+};
+
+export const probesApi = {
+  getAll: async (): Promise<Probe[]> =>
+    (await apiClient.get('/api/v1/probes')).data.data ?? [],
+  create: async (data: {
+    name: string;
+    country: string;
+    region?: string;
+  }): Promise<Probe> =>
+    (await apiClient.post('/api/v1/admin/probes', data)).data.data,
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/v1/admin/probes/${id}`);
+  },
+};
 
 export const servicesApi = {
   getAll: async (): Promise<Service[]> =>
