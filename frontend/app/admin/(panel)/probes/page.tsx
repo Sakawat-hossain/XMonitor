@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import { Probe } from '@/types/monitoring';
 import { probesApi } from '@/lib/api/monitoring';
 import { CountryFlag } from '@/components/ui/country-flag';
 import { Button } from '@/components/ui/button';
@@ -18,26 +18,18 @@ import {
 import { Loader2, Plus, Radar, Trash2 } from 'lucide-react';
 
 export default function ProbesAdminPage() {
-  const [probes, setProbes] = useState<Probe[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [formOpen, setFormOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: probes = [], isLoading: loading } = useQuery({
+    queryKey: ['probes'],
+    queryFn: probesApi.getAll,
+  });
+  const reload = () => queryClient.invalidateQueries({ queryKey: ['probes'] });
 
+  const [formOpen, setFormOpen] = useState(false);
   const [name, setName] = useState('');
   const [country, setCountry] = useState('');
   const [region, setRegion] = useState('');
   const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      setProbes(await probesApi.getAll());
-    } catch {
-      toast.error('Failed to load probes');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
 
   const save = async () => {
     if (!name.trim() || country.trim().length !== 2) {
@@ -50,7 +42,7 @@ export default function ProbesAdminPage() {
       toast.success(`Probe "${name}" registered`);
       setName(''); setCountry(''); setRegion('');
       setFormOpen(false);
-      load();
+      reload();
     } catch (err) {
       const e = err as AxiosError<{ error?: string }>;
       toast.error(e.response?.data?.error || 'Failed to add probe');
@@ -104,7 +96,7 @@ export default function ProbesAdminPage() {
                       onClick={async () => {
                         await probesApi.delete(p.id);
                         toast.success('Probe removed');
-                        load();
+                        reload();
                       }}
                     >
                       <Trash2 className="w-3.5 h-3.5" />

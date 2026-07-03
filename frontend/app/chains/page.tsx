@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { RelayChain } from '@/types/chain';
+import { useQuery } from '@tanstack/react-query';
 import { chainsApi } from '@/lib/api/chains';
 import { ChainVisualizer } from '@/components/dashboard/chain-visualizer';
 import { Navbar } from '@/components/layout/navbar';
@@ -12,24 +11,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Waypoints, AlertCircle } from 'lucide-react';
 
 export default function ChainsPage() {
-  const [chains, setChains] = useState<RelayChain[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const load = () =>
-      chainsApi
-        .getAll()
-        .then((data) => {
-          setChains(data);
-          setError(false);
-        })
-        .catch(() => setError(true))
-        .finally(() => setLoading(false));
-    load();
-    const interval = setInterval(load, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  const { data: chains = [], isLoading: loading, isError: error } = useQuery({
+    queryKey: ['chains'],
+    queryFn: chainsApi.getAll,
+    refetchInterval: 10000,
+  });
 
   const totalHops = chains.reduce((sum, c) => sum + c.hops.length, 0);
   const hiddenNodes = chains.reduce(

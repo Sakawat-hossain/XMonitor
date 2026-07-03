@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { useForm, Controller } from 'react-hook-form';
@@ -61,26 +62,16 @@ function Sparkline({ history }: { history: Service['history'] }) {
 }
 
 export default function ServicesAdminPage() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: services = [], isLoading: loading } = useQuery({
+    queryKey: ['services'],
+    queryFn: servicesApi.getAll,
+    refetchInterval: 15000,
+  });
+  const reload = () => queryClient.invalidateQueries({ queryKey: ['services'] });
+
   const [formOpen, setFormOpen] = useState(false);
   const [deleting, setDeleting] = useState<Service | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      setServices(await servicesApi.getAll());
-    } catch {
-      toast.error('Failed to load services');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const t = setInterval(load, 15000);
-    return () => clearInterval(t);
-  }, [load]);
 
   const {
     register, handleSubmit, control, reset, watch,
@@ -97,7 +88,7 @@ export default function ServicesAdminPage() {
       toast.success(`Monitoring "${values.name}"`);
       reset({ name: '', type: 'http', target: '', interval_secs: 60 });
       setFormOpen(false);
-      load();
+      reload();
     } catch (err) {
       const e = err as AxiosError<{ error?: string }>;
       toast.error(e.response?.data?.error || 'Failed to create service');
@@ -114,7 +105,7 @@ export default function ServicesAdminPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={load}>
+          <Button variant="outline" size="sm" onClick={reload}>
             <RefreshCw className="w-4 h-4" />
           </Button>
           <Button size="sm" onClick={() => setFormOpen(true)}>
@@ -251,7 +242,7 @@ export default function ServicesAdminPage() {
                 try {
                   await servicesApi.delete(deleting.id);
                   toast.success('Monitor removed');
-                  load();
+                  reload();
                 } catch {
                   toast.error('Failed to delete');
                 }

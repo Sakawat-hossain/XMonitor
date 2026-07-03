@@ -1,6 +1,7 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
@@ -48,8 +49,13 @@ const PAGE_SIZES = [10, 25, 50, 100];
 
 function ServersPageInner() {
   const searchParams = useSearchParams();
-  const [servers, setServers] = useState<Server[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: servers = [], isLoading: loading } = useQuery({
+    queryKey: ['servers'],
+    queryFn: serversApi.getAll,
+    refetchInterval: 15000,
+  });
+  const reload = () => queryClient.invalidateQueries({ queryKey: ['servers'] });
 
   // Filters
   const [query, setQuery] = useState('');
@@ -67,20 +73,6 @@ function ServersPageInner() {
   const [deleting, setDeleting] = useState<Server | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirm, setBulkConfirm] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      setServers(await serversApi.getAll());
-    } catch {
-      toast.error('Failed to load servers');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const countries = useMemo(
     () => Array.from(new Set(servers.map((s) => s.country))).sort(),
@@ -117,7 +109,7 @@ function ServersPageInner() {
       toast.success(ids.length > 1 ? `${ids.length} servers deleted` : 'Server deleted');
     }
     setSelected(new Set());
-    load();
+    reload();
   };
 
   const toggleSelect = (id: string) => {
@@ -146,7 +138,7 @@ function ServersPageInner() {
               <Trash2 className="w-4 h-4 mr-1" /> Delete {selected.size}
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={load}>
+          <Button variant="outline" size="sm" onClick={reload}>
             <RefreshCw className="w-4 h-4" />
           </Button>
           <Button size="sm" onClick={() => { setEditing(null); setFormOpen(true); }}>
@@ -329,7 +321,7 @@ function ServersPageInner() {
         open={formOpen}
         onOpenChange={setFormOpen}
         server={editing}
-        onSaved={load}
+        onSaved={reload}
       />
 
       {/* Single delete confirmation */}

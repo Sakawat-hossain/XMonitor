@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import cronstrue from 'cronstrue';
-import { CronTask, CronExecution } from '@/types/monitoring';
 import { cronApi } from '@/lib/api/monitoring';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,31 +29,24 @@ function humanSchedule(expr: string): string {
 }
 
 export default function CronAdminPage() {
-  const [tasks, setTasks] = useState<CronTask[]>([]);
-  const [executions, setExecutions] = useState<CronExecution[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [formOpen, setFormOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: tasks = [], isLoading: loading } = useQuery({
+    queryKey: ['cron', 'tasks'],
+    queryFn: cronApi.getAll,
+  });
+  const { data: executions = [] } = useQuery({
+    queryKey: ['cron', 'executions'],
+    queryFn: () => cronApi.executions(),
+  });
+  const reload = () => queryClient.invalidateQueries({ queryKey: ['cron'] });
 
+  const [formOpen, setFormOpen] = useState(false);
   const [name, setName] = useState('');
   const [command, setCommand] = useState('');
   const [schedule, setSchedule] = useState('0 3 * * *');
   const [saving, setSaving] = useState(false);
 
   const schedulePreview = useMemo(() => humanSchedule(schedule), [schedule]);
-
-  const load = useCallback(async () => {
-    try {
-      const [t, e] = await Promise.all([cronApi.getAll(), cronApi.executions()]);
-      setTasks(t ?? []);
-      setExecutions(e ?? []);
-    } catch {
-      toast.error('Failed to load tasks');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
 
   const save = async () => {
     if (!name.trim() || !command.trim()) {
@@ -66,7 +59,7 @@ export default function CronAdminPage() {
       toast.success(`Task "${name}" scheduled`);
       setName(''); setCommand('');
       setFormOpen(false);
-      load();
+      reload();
     } catch (err) {
       const e = err as AxiosError<{ error?: string }>;
       toast.error(e.response?.data?.error || 'Failed to create task');
@@ -89,7 +82,7 @@ export default function CronAdminPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border border-amber-500/30 bg-amber-500/5 text-yellow-600 dark:text-yellow-400 text-sm px-4 py-2">
+      <div className="rounded-md border border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-500 text-sm px-4 py-2">
         The agent component isn&apos;t installed on any server yet, so runs are
         recorded as <code className="font-mono">no_agent</code>. Scheduling and
         history work end-to-end.
@@ -150,7 +143,7 @@ export default function CronAdminPage() {
                           onClick={async () => {
                             await cronApi.trigger(t.id);
                             toast.info(`"${t.name}" triggered`);
-                            load();
+                            reload();
                           }}
                         >
                           <Play className="w-4 h-4" />
@@ -160,7 +153,7 @@ export default function CronAdminPage() {
                           title={t.enabled ? 'Disable' : 'Enable'}
                           onClick={async () => {
                             await cronApi.update(t.id, { enabled: !t.enabled });
-                            load();
+                            reload();
                           }}
                         >
                           <Power className="w-4 h-4" />
@@ -170,7 +163,7 @@ export default function CronAdminPage() {
                           onClick={async () => {
                             await cronApi.delete(t.id);
                             toast.success('Task deleted');
-                            load();
+                            reload();
                           }}
                         >
                           <Trash2 className="w-4 h-4" />

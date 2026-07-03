@@ -1,6 +1,7 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
@@ -27,33 +28,24 @@ import { ArrowRight, Loader2, Pencil, Plus, Radio, Trash2 } from 'lucide-react';
 
 function ChainsPageInner() {
   const searchParams = useSearchParams();
-  const [chains, setChains] = useState<RelayChain[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: chains = [], isLoading: loading } = useQuery({
+    queryKey: ['chains'],
+    queryFn: chainsApi.getAll,
+  });
+  const reload = () => queryClient.invalidateQueries({ queryKey: ['chains'] });
+
   const [wizardOpen, setWizardOpen] = useState(searchParams.get('new') === '1');
   const [editing, setEditing] = useState<RelayChain | null>(null);
   const [deleting, setDeleting] = useState<RelayChain | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    try {
-      setChains(await chainsApi.getAll());
-    } catch {
-      toast.error('Failed to load chains');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
   const testChain = async (chain: RelayChain) => {
     setTestingId(chain.id);
     try {
       const updated = await chainsApi.test(chain.id);
-      setChains((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
       toast.success(`"${chain.name}" tested — total latency ${updated.total_latency}ms`);
+      reload();
     } catch (err) {
       const axiosErr = err as AxiosError<{ error?: string }>;
       toast.error(axiosErr.response?.data?.error || 'Test failed');
@@ -161,7 +153,7 @@ function ChainsPageInner() {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         chain={editing}
-        onSaved={load}
+        onSaved={reload}
       />
 
       <AlertDialog open={deleting !== null} onOpenChange={(o) => !o && setDeleting(null)}>
@@ -181,7 +173,7 @@ function ChainsPageInner() {
                 try {
                   await chainsApi.delete(deleting.id);
                   toast.success('Chain deleted');
-                  load();
+                  reload();
                 } catch {
                   toast.error('Failed to delete chain');
                 }

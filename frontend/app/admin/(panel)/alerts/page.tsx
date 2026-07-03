@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AlertRule, AlertEvent, NotificationChannel } from '@/types/monitoring';
+import { AlertRule } from '@/types/monitoring';
 import { alertsApi, channelsApi } from '@/lib/api/monitoring';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,30 +44,23 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 
 export default function AlertsAdminPage() {
-  const [rules, setRules] = useState<AlertRule[]>([]);
-  const [events, setEvents] = useState<AlertEvent[]>([]);
-  const [channels, setChannels] = useState<NotificationChannel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: rules = [], isLoading: loading } = useQuery({
+    queryKey: ['alerts', 'rules'],
+    queryFn: alertsApi.getRules,
+  });
+  const { data: events = [] } = useQuery({
+    queryKey: ['alerts', 'events'],
+    queryFn: alertsApi.getEvents,
+    refetchInterval: 30000,
+  });
+  const { data: channels = [] } = useQuery({
+    queryKey: ['channels'],
+    queryFn: channelsApi.getAll,
+  });
+  const reload = () => queryClient.invalidateQueries({ queryKey: ['alerts'] });
+
   const [formOpen, setFormOpen] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      const [r, e, c] = await Promise.all([
-        alertsApi.getRules(),
-        alertsApi.getEvents(),
-        channelsApi.getAll(),
-      ]);
-      setRules(r);
-      setEvents(e ?? []);
-      setChannels(c ?? []);
-    } catch {
-      toast.error('Failed to load alerts');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
 
   const {
     register, handleSubmit, control, reset, watch, setValue,
@@ -83,7 +77,7 @@ export default function AlertsAdminPage() {
       toast.success(`Rule "${values.name}" created`);
       reset();
       setFormOpen(false);
-      load();
+      reload();
     } catch (err) {
       const e = err as AxiosError<{ error?: string }>;
       toast.error(e.response?.data?.error || 'Failed to create rule');
@@ -93,7 +87,7 @@ export default function AlertsAdminPage() {
   const toggle = async (rule: AlertRule, field: 'enabled' | 'muted') => {
     try {
       await alertsApi.updateRule(rule.id, { [field]: !rule[field] });
-      load();
+      reload();
     } catch {
       toast.error('Update failed');
     }
@@ -171,7 +165,7 @@ export default function AlertsAdminPage() {
                           onClick={async () => {
                             await alertsApi.deleteRule(r.id);
                             toast.success('Rule deleted');
-                            load();
+                            reload();
                           }}
                         >
                           <Trash2 className="w-4 h-4" />

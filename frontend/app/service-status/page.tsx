@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Service } from '@/types/monitoring';
 import { servicesApi } from '@/lib/api/monitoring';
 import { Navbar } from '@/components/layout/navbar';
@@ -36,20 +36,11 @@ function HistoryBars({ service }: { service: Service }) {
 }
 
 export default function ServiceStatusPage() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const load = () =>
-      servicesApi
-        .getAll()
-        .then(setServices)
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    load();
-    const t = setInterval(load, 30000);
-    return () => clearInterval(t);
-  }, []);
+  const { data: services = [], isLoading: loading } = useQuery({
+    queryKey: ['services'],
+    queryFn: servicesApi.getAll,
+    refetchInterval: 30000,
+  });
 
   const allUp = services.length > 0 && services.every((s) => s.status !== 'down');
   const downCount = services.filter((s) => s.status === 'down').length;

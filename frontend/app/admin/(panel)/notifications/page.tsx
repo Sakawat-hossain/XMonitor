@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { NotificationChannel, ChannelType } from '@/types/monitoring';
@@ -56,8 +57,13 @@ const TYPE_LABELS: Record<ChannelType, string> = {
 };
 
 export default function NotificationsAdminPage() {
-  const [channels, setChannels] = useState<NotificationChannel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: channels = [], isLoading: loading } = useQuery({
+    queryKey: ['channels'],
+    queryFn: channelsApi.getAll,
+  });
+  const reload = () => queryClient.invalidateQueries({ queryKey: ['channels'] });
+
   const [formOpen, setFormOpen] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
 
@@ -66,18 +72,6 @@ export default function NotificationsAdminPage() {
   const [type, setType] = useState<ChannelType>('telegram');
   const [config, setConfig] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      setChannels((await channelsApi.getAll()) ?? []);
-    } catch {
-      toast.error('Failed to load channels');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
 
   const save = async () => {
     if (!name.trim()) {
@@ -96,7 +90,7 @@ export default function NotificationsAdminPage() {
       setName('');
       setConfig({});
       setFormOpen(false);
-      load();
+      reload();
     } catch (err) {
       const e = err as AxiosError<{ error?: string }>;
       toast.error(e.response?.data?.error || 'Failed to add channel');
@@ -166,7 +160,7 @@ export default function NotificationsAdminPage() {
                     onClick={async () => {
                       await channelsApi.delete(ch.id);
                       toast.success('Channel removed');
-                      load();
+                      reload();
                     }}
                   >
                     <Trash2 className="w-4 h-4" />
