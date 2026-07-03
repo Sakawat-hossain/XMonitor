@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"strings"
 	"sync"
 	"time"
 
@@ -109,6 +110,7 @@ func (s *MemoryStore) CreateServer(req *models.CreateServerRequest) *models.Serv
 		SSHPort:     req.SSHPort,
 		SSHUser:     req.SSHUser,
 		SSHPassword: req.SSHPassword,
+		AgentSecret: strings.ReplaceAll(uuid.New().String(), "-", ""),
 		CreatedAt:   time.Now(),
 		LastSeen:    time.Now(),
 	}
@@ -186,6 +188,83 @@ func (s *MemoryStore) DeleteServer(id string) error {
 	}
 	delete(s.servers, id)
 	return nil
+}
+
+// GetServerBySecret resolves the server bound to an agent secret.
+func (s *MemoryStore) GetServerBySecret(secret string) (*models.Server, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if secret == "" {
+		return nil, errors.New("missing agent secret")
+	}
+	for _, srv := range s.servers {
+		if srv.AgentSecret == secret {
+			return srv, nil
+		}
+	}
+	return nil, errors.New("invalid agent secret")
+}
+
+// RegisterAgent records agent identity on first contact and marks it online.
+func (s *MemoryStore) RegisterAgent(id string, req *models.AgentRegisterRequest) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	srv, ok := s.servers[id]
+	if !ok {
+		return
+	}
+	if req.OS != "" {
+		srv.OS = req.OS
+	}
+	if req.Arch != "" {
+		srv.Arch = req.Arch
+	}
+	if req.Version != "" {
+		srv.AgentVersion = req.Version
+	}
+	srv.AgentConnected = true
+	srv.Status = "online"
+	srv.LastAgentSeen = time.Now()
+	srv.LastSeen = srv.LastAgentSeen
+}
+
+// ApplyHeartbeat updates a server's live metrics from an agent heartbeat.
+func (s *MemoryStore) ApplyHeartbeat(id string, hb *models.AgentHeartbeat) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	srv, ok := s.servers[id]
+	if !ok {
+		return
+	}
+	srv.CPU = hb.CPU
+	srv.Memory = hb.Memory
+	srv.Disk = hb.Disk
+	srv.NetworkIn = hb.NetworkIn
+	srv.NetworkOut = hb.NetworkOut
+	srv.Uptime = hb.Uptime
+	srv.Processes = hb.Processes
+	srv.Connections = hb.Connections
+	srv.AgentConnected = true
+	srv.Status = "online"
+	srv.LastAgentSeen = time.Now()
+	srv.LastSeen = srv.LastAgentSeen
+}
+
+// ReapStaleAgents marks agents offline if they haven't been seen recently.
+func (s *MemoryStore) ReapStaleAgents(timeout time.Duration) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	now := time.Now()
+	for _, srv := range s.servers {
+		if srv.AgentConnected && now.Sub(srv.LastAgentSeen) > timeout {
+			srv.AgentConnected = false
+			srv.Status = "offline"
+		}
+	}
 }
 
 // getCountryFlag returns emoji flag for a country code

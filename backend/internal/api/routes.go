@@ -27,6 +27,19 @@ func SetupRouter() *gin.Engine {
 	// WebSocket live updates (public — mirrors the public GET APIs)
 	router.GET("/ws", ws.Handler)
 
+	// Agent bootstrap (public): install script + prebuilt binary download
+	router.GET("/install.sh", handlers.ServeInstallScript)
+	router.GET("/install/:platform", handlers.ServeAgentBinary)
+
+	// Agent channel (authenticated by per-server X-Agent-Secret, not JWT)
+	agentGrp := router.Group("/api/v1/agent")
+	agentGrp.Use(middleware.AgentAuth())
+	{
+		agentGrp.POST("/register", handlers.AgentRegister)
+		agentGrp.POST("/heartbeat", handlers.AgentHeartbeat)
+		agentGrp.POST("/tasks/:id/result", handlers.AgentTaskResult)
+	}
+
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
@@ -73,6 +86,11 @@ func SetupRouter() *gin.Engine {
 			admin.POST("/servers", handlers.CreateServer)
 			admin.PUT("/servers/:id", handlers.UpdateServer)
 			admin.DELETE("/servers/:id", handlers.DeleteServer)
+
+			// Agent: install command + generic task dispatch
+			admin.GET("/servers/:id/install", handlers.GetInstallCommand)
+			admin.GET("/servers/:id/tasks", handlers.GetServerTasks)
+			admin.POST("/servers/:id/tasks", handlers.EnqueueServerTask)
 
 			// Chain CRUD
 			admin.POST("/chains", handlers.CreateChain)

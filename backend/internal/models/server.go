@@ -26,6 +26,17 @@ type Server struct {
 	SSHPort     int    `json:"ssh_port,omitempty"`
 	SSHUser     string `json:"ssh_user,omitempty"`
 	SSHPassword string `json:"-"`
+
+	// Agent binding. AgentSecret is write-only (embedded in the install
+	// command); it authenticates the agent's own endpoints.
+	AgentSecret    string    `json:"-"`
+	AgentConnected bool      `json:"agent_connected"`
+	AgentVersion   string    `json:"agent_version,omitempty"`
+	OS             string    `json:"os,omitempty"`
+	Arch           string    `json:"arch,omitempty"`
+	Processes      int       `json:"processes,omitempty"`
+	Connections    int       `json:"connections,omitempty"`
+	LastAgentSeen  time.Time `json:"last_agent_seen,omitempty"`
 }
 
 // CreateServerRequest is the payload to add a new server

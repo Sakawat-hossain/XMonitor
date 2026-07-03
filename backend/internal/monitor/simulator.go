@@ -54,6 +54,10 @@ func tickMetrics() {
 		if srv.Status == "offline" {
 			continue
 		}
+		// Real agents report their own metrics; don't overwrite them.
+		if srv.AgentConnected {
+			continue
+		}
 		srv.CPU = walk(srv.CPU, 6, 2, 99)
 		srv.Memory = walk(srv.Memory, 3, 5, 97)
 		srv.Disk = walk(srv.Disk, 0.2, 1, 99)
