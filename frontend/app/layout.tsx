@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/lib/auth/context";
+import { QueryProvider } from "@/lib/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -39,7 +40,9 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <AuthProvider>{children}</AuthProvider>
+            <QueryProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryProvider>
             <Toaster richColors />
           </ThemeProvider>
         </NextIntlClientProvider>
